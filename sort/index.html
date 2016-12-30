@@ -1,0 +1,387 @@
+﻿<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="">
+ <!--<![endif]-->
+<head>
+    <title>Experimental javascript sorting-algorithm-visualiser</title>
+    <meta name="description" content="Experimental javascript sorting-algorithm-visualiser developed by converting psuedocode" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <meta property="og:image" content="http://95.109.18.81/sort/fb-share.jpg" />
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <style>
+        body {
+                margin: 20px;
+                background: #060606;
+                color: #ffffff;
+        }
+
+        p {
+            color: #888888;
+        }
+
+        #wrapper {
+            width: 1024px;
+        }
+
+
+        #box {
+            height: 200px;
+            background: #212121;
+            overflow: hidden;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        input[type=text], .btn {
+            margin-bottom: 3px;
+        }
+
+        .row-margin {
+            margin-bottom: 20px;
+        }
+
+        .bar {
+            background: #3E3D3D;
+            position: absolute;
+            bottom: 0;
+        }
+
+        @media only screen and (max-width: 1024px) {
+            #wrapper {
+                width: 100%
+            }
+        }
+    </style>
+
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68670415-1', 'auto');
+  ga('send', 'pageview');
+
+    </script>
+</head>
+<body>
+    <div id="wrapper">
+        <div class="row">
+            <div class="col-lg-12 row-margin">
+                <h1>Experimental javascript "sorting-algorithm-visualiser"</h1>
+                <p>
+                    Experimental javascript sorting-algorithm-visualiser developed by converting psuedocode from <a href="https://en.wikipedia.org/wiki/Sorting_algorithm">Wikipedia</a><br/>
+                    Visualisation is delayed 100ms
+                </p>
+
+                <h4 class="text-danger">Warning, loud sound!</h4>
+            </div>
+        </div>
+        <div class="row row-margin">
+            <div class="col-lg-8">
+                <input class="form-control" id="values" type="text" value="200,800,900,100,1000,300,400,600,500,700" />
+            </div>
+            <div class="col-lg-4">
+                <button onclick="controller.Insert(document.getElementById('values').value)" class="btn btn btn-info">UPDATE</button>
+            </div>
+        </div>
+        <div class="row row-margin">
+            <div class="col-lg-8">
+                <button onclick="controller.Sort('BubbleSort')" class="btn btn-success">BUBBLE</button>
+                <button onclick="controller.Sort('InsertionSort')" class="btn btn-success">INSERTION</button>
+                <button onclick="controller.Sort('GnomeSort')" class="btn btn-success">GNOME</button>
+                <button onclick="controller.Sort('StrandSort')" class="btn btn-success">STRAND</button>
+            </div>
+            <div class="col-lg-4">
+                <button onclick="controller.Stop()" class="btn btn btn-danger">STOP</button>
+                <button onclick="controller.Clear()" class="btn btn-primary">CLEAR</button>
+            </div>
+        </div>
+        <div class="row row-margin">
+            <div class="col-lg-10">
+                <div id="box"></div>
+            </div>
+        </div>
+    </div>
+        <script>
+
+
+            //https://en.wikipedia.org/wiki/Bubble_sort
+            Array.prototype.BubbleSort = function (change) {
+                var tempList = this.slice(0),
+                len = tempList.length, i, j;
+
+                for (i = len - 1; i >= 0; i--) {
+                    for (j = 1; j <= i; j++) {
+                        if (tempList[j - 1] > tempList[j]) {
+                            var temp = tempList[j - 1];
+                            tempList[j - 1] = tempList[j];
+                            change(j - 1, tempList[j]);
+                            tempList[j] = temp;
+                            change(j, temp);
+                        }
+                    }
+                }
+
+                return tempList;
+            }
+
+            //https://en.wikipedia.org/wiki/Insertion_sort
+            Array.prototype.InsertionSort = function (change) {
+                var tempList = this.slice(0),
+                len = tempList.length, i, j, minIdx;
+
+                for (i = 0; i < len; i++) {
+                    minIdx = i;
+                    for (j = i + 1; j < len; j++) {
+                        if (tempList[j] < tempList[minIdx]) {
+                            minIdx = j;
+                        }
+                    }
+                    temp = tempList[i];
+
+                    tempList[i] = tempList[minIdx];
+                    change(i, tempList[minIdx]);
+
+                    tempList[minIdx] = temp;
+                    change(minIdx, temp);
+                }
+
+                return tempList;
+            }
+
+            //https://en.wikipedia.org/wiki/Gnome_sort
+            Array.prototype.GnomeSort = function (change) {
+                var tempList = this.slice(0),
+                    len = this.length, pos = 1, last = 0;
+
+                while (pos < len) {
+                    if (tempList[pos] >= tempList[pos - 1]) {
+                        if (last != 0) {
+                            pos = last;
+                            last = 0;
+                        }
+                        pos = pos + 1;
+                    }
+                    else {
+                        var temp = tempList[pos];
+
+                        tempList[pos] = tempList[pos - 1];
+                        change(pos, tempList[pos]);
+
+                        tempList[pos - 1] = temp;
+                        change(pos - 1, tempList[pos - 1]);
+
+                        if (pos > 1) {
+                            if (last == 0) {
+                                last = pos;
+                            }
+                            pos = pos - 1;
+                        }
+                        else {
+                            pos = pos + 1;
+                        }
+                    }
+                }
+
+                return tempList;
+            }
+
+            //https://en.wikipedia.org/wiki/Strand_sort
+            Array.prototype.StrandSort = function (change) {
+                var orignal = this.slice(0),
+                len = orignal.length, i, j, inserted
+                result = [],
+                sublist = [];
+
+                while (orignal.length > 0) {
+                    sublist = [];
+                    sublist.push(orignal[0]);
+                    orignal.shift();
+
+                    for (i = 0; i < orignal.length; i++) {
+                        if (orignal[i] > sublist[sublist.length - 1]) {
+                            sublist.push(orignal[i]);
+                            change(sublist.length - 1, orignal[i]);
+                            orignal.splice(i, 1);
+                            i--;
+                        }
+                    }
+
+                    if (result.length === 0)
+                        result = sublist.slice(0);
+                    else {
+                        for (i = 0; i < sublist.length; i++) {
+                            inserted = false;
+                            for (j = 0; j < result.length; j++) {
+                                if (sublist[i] < result[j]) {
+                                    result.splice(j, 0, sublist[i]);
+                                    change(j, sublist[i]);
+                                    inserted = true;
+                                    break;
+                                }
+                            }
+
+                            if (!inserted) {
+                                result.push(sublist[i]);
+                                change(result.length - 1, sublist[i]);
+                            }
+
+                        }
+                    }
+                }
+
+                return result;
+            }
+
+        </script>
+
+        <script>
+
+            var ControllerCore = function () {
+                this.tones = [];
+                this.max = 0;
+                this.min = 0;
+                this.len = 0;
+                this.box = document.getElementById("box");
+
+                this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(),
+                this.oscillator = undefined;
+                this.gainNode = undefined;
+                this.stopped = false;
+
+                this.InsertBars();
+            }
+
+            ControllerCore.prototype.Insert = function (values) {
+                if (values.match(/^(\d+(,\d+)*)?$/)) {
+                    this.tones = values.split(",");
+                    this.max = Math.max.apply(null, this.tones);
+                    this.min = Math.min.apply(null, this.tones);
+                    this.len = this.tones.length;
+                    this.InsertBars();
+                } else {
+                    alert("Invalid values");
+                }
+            }
+
+            ControllerCore.prototype.Clear = function () {
+                this.InsertBars();
+            }
+
+            ControllerCore.prototype.Start = function () {
+                this.InsertBars();
+                this.Stop();
+
+                this.toneDelay = 0;
+                this.stopped = false;
+
+                this.oscillator = this.audioCtx.createOscillator();
+                this.gainNode = this.audioCtx.createGain();
+
+                this.gainNode.connect(this.audioCtx.destination);
+                this.gainNode.gain.value = 1;
+
+                this.oscillator.connect(this.gainNode);
+                this.oscillator.type = 'square';
+                this.oscillator.detune.value = 100;
+                this.oscillator.frequency.value = 0;
+
+                this.oscillator.start(0);
+            }
+
+            ControllerCore.prototype.Stop = function () {
+                var id = window.setTimeout(function () { }, 0);
+                while (id--) {
+                    window.clearTimeout(id);
+                }
+
+                this.stopped = true;
+
+                if (typeof this.oscillator != "undefined")
+                    this.oscillator.stop(0);
+            }
+
+            ControllerCore.prototype.Sort = function (type) {
+                var _this = this;
+
+                if (_this.tones.length == 0) {
+                    alert("No values");
+                }
+                 
+                _this.tempTones = _this.tones.slice(0);
+
+                _this.Start();
+
+                for (i = 0; i < _this.len; i++) {
+                    _this.SetSort(i, _this.tempTones[i], false);
+                }
+
+                _this.tempTones = _this.tempTones[type](function (index, value) {
+                    _this.SetSort(index, value);
+                });
+
+                for (i = 0; i < _this.len; i++) {
+                    _this.SetSort(i, _this.tempTones[i], true);
+                }
+            }
+
+            ControllerCore.prototype.InsertBars = function () {
+                this.box.innerHTML = "";
+                this.bars = [];
+
+
+                var barWidth = this.box.offsetWidth / this.len;
+                for (var i = 0; i < this.len; i++) {
+
+                    if(typeof(this.tones[i]) == "string")
+                        this.tones[i] = parseInt(this.tones[i].trim(), 10);
+
+                    var bar = document.createElement("div");
+                    bar.className = "bar";
+                    bar.style.width = barWidth + "px";
+                    bar.style.left = (barWidth * i) + "px"
+                    bar.style.height = (((this.tones[i] / this.max) * 100)) + "%";
+
+                    this.box.appendChild(bar);
+
+                    this.bars.push(bar);
+                }
+            }
+
+            ControllerCore.prototype.SetSort = function (index, value, end) {
+                var _this = this;
+                _this.bars[index].style.backgroundColor = undefined;
+                setTimeout(function () {
+                    _this.oscillator.frequency.value = value;
+                    var height = ((value / _this.max) * 100) + "%";
+                    
+                    _this.bars[index].style.height = ((value / _this.max) * 100) + "%"
+                    _this.bars[index].style.backgroundColor = (end === true ? "#77b300" : "#2a9fd6");
+                    
+                    if (end === true && value === _this.max)
+                        _this.Stop();
+
+                }, _this.toneDelay);
+
+                _this.toneDelay += 100;
+            }
+
+
+            var controller = new ControllerCore();
+            controller.Insert(document.getElementById('values').value)
+
+        </script>
+
+
+</body>
+</html>
